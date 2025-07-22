@@ -1,0 +1,84 @@
+unit Wire_u;
+
+interface
+
+uses Vcl.Graphics, Math, Generics.Collections;
+
+type
+  TLine = record
+    x1, x2, y1, y2 : Integer;
+    color : TColor;
+    constructor Create(x1, y1, x2, y2 : Integer; color : TColor);
+end;
+
+type
+  TCable = record
+    cables : TList<TLine>;
+    id : Integer;
+    constructor Create(id, x, y, len, dir : Integer);
+    procedure addCable(len, dir : Integer);
+end;
+
+type
+  TConnection = record
+    gateId, cableId : Integer;
+    constructor Create(gateId, cableId : Integer);
+end;
+
+type
+  TSplit = record
+    inCableId : Integer;
+    outCableId : TList<Integer>;
+    constructor Create(inCableId : Integer; outCableId : TList<Integer>);
+end;
+
+type
+  TWire = record
+    components : TList<String>;
+    cables : TList<TCable>;
+    connections : TList<TConnection>;
+    splits : TList<TSplit>;
+    //constructor Create(
+end;
+
+implementation
+
+constructor TLine.Create(x1, y1, x2, y2 : Integer; color : TColor);
+begin
+  Self.x1 := x1;
+  Self.x2 := x2;
+  Self.y1 := y1;
+  Self.y2 := y2;
+  Self.color := color;
+end;
+
+constructor TCable.Create(id, x, y, len, dir : Integer);
+begin
+  Self.id := id;
+  cables.Add(TLine.Create(x, y, IfThen(dir = 0, x, IfThen(dir = 1, x + dir, IfThen(dir = 2, x, x - dir))), IfThen(dir = 0, y - dir, IfThen(dir = 1, y, IfThen(dir = 2, y + dir, y))), clWhite));
+end;
+
+procedure TCable.addCable(len, dir : Integer);
+var
+  x, y : Integer;
+  col : TColor;
+begin
+  x := cables.Last.x2;
+  y := cables.Last.y2;
+  col := cables.Last.color;
+  cables.Add(TLine.Create(x, y, IfThen(dir = 0, x, IfThen(dir = 1, x + dir, IfThen(dir = 2, x, x - dir))), IfThen(dir = 0, y - dir, IfThen(dir = 1, y, IfThen(dir = 2, y + dir, y))), col));
+end;
+
+constructor TConnection.Create(gateId, cableId : Integer);
+begin
+  Self.gateId := gateId;
+  self.cableId := cableId;
+end;
+
+constructor TSplit.Create(inCableId : Integer; outCableId : TList<Integer>);
+begin
+  Self.inCableId := inCableId;
+  Self.outCableId := outCableId;
+end;
+
+end.

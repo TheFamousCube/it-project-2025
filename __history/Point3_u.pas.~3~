@@ -1,0 +1,27 @@
+unit Point3_u;
+
+interface
+
+uses Graphics;
+
+type
+  TPoint3 = record
+  x, y, z : Real;
+  col : TColor;
+  constructor Create(x, y, z : Real; color : TColor);
+
+end;
+
+implementation
+
+{ TPoint3 }
+
+constructor TPoint3.Create(x, y, z: Real; color: TColor);
+begin
+  Self.x := x;
+  Self.y := y;
+  Self.z := z;
+  Self.col := color;
+end;
+
+end.

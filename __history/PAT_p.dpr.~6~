@@ -1,0 +1,16 @@
+program PAT_p;
+
+uses
+  Vcl.Forms,
+  logicEditor in 'logicEditor.pas' {frmGame},
+  mainScreen_u in 'mainScreen_u.pas' {frmStart};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmGame, frmGame);
+  Application.CreateForm(TfrmStart, frmStart);
+  Application.Run;
+end.

@@ -1,0 +1,32 @@
+unit PAT_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Math, Vcl.Imaging.pngimage;
+
+type
+  TfrmCar = class(TForm)
+    tmrGame: TTimer;
+    imgCar: TImage;
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCar: TfrmCar;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCar.FormCreate(Sender: TObject);
+begin
+  AllocConsole;
+end;
+
+end.

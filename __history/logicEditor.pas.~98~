@@ -1,0 +1,148 @@
+unit logicEditor;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Math, Vcl.Imaging.pngimage, Vcl.StdCtrls, Gate_u, Generics.Collections;
+
+type
+  TfrmGame = class(TForm)
+    pnlLogic: TPanel;
+    pnlPuzzle: TPanel;
+    pnlLogicLib: TPanel;
+    pnlControls: TPanel;
+    imgLevelsButton: TImage;
+    imgSwitchScreen: TImage;
+    imgExitButton: TImage;
+    Panel1: TPanel;
+    shpAnd: TShape;
+    lblAnd: TLabel;
+    Shape1: TShape;
+    btnAdd: TButton;
+    procedure imgSwitchScreenClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure imgExitButtonClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure btnAddClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure onLibGateClicked(Sender: TObject);
+    procedure onLogicPanelClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+  private
+    { Private declarations }
+  public
+  end;
+
+var
+  frmGame: TfrmGame;
+  gates : TDictionary<Integer, TGate>;
+  gateLib : TDictionary<Integer, TGate>;
+  isPlacingGate : Boolean;
+  curPlacingGate, maxId : Integer;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmGame.onLibGateClicked(Sender: TObject);
+begin
+  isPlacingGate := not isPlacingGate;
+  if isPlacingGate then
+  begin
+    curPlacingGate := TGate(Sender).id;
+  end
+end;
+
+procedure TfrmGame.onLogicPanelClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  tmpGate : TGate;
+begin
+  if isPlacingGate then
+  begin
+    Inc(maxId);
+    WriteLn(curPlacingGate);
+    tmpGate := TGate.Create(gateLib[curPlacingGate].name, gateLib[curPlacingGate].inputs, gateLib[curPlacingGate].outputs, gateLib[curPlacingGate].color, maxId, nil);
+    tmpGate.makePanel(pnlLogic, X, Y, False);
+    gates.Add(maxId, tmpGate);
+    tmpGate.Free;
+  end;
+end;
+
+procedure TfrmGame.btnAddClick(Sender: TObject);
+var
+  sName : String;
+  iInputs, iOutputs : Integer;
+  clCol : TColor;
+  clDialog : TColorDialog;
+  gate : TGate;
+begin
+//
+end;
+
+procedure TfrmGame.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmGame.FormCreate(Sender: TObject);
+var
+  tmpGate : TGate;
+  tmpPnl : TPanel;
+begin
+  gates := TDictionary<Integer, TGate>.Create;
+  gateLib := TDictionary<Integer, TGate>.Create;
+  maxId := 0;
+  Screen.HintFont.Name := 'ADLaM Display';
+  Screen.HintFont.Size := 20;
+
+  pnlLogic.onMouseUp := onLogicPanelClicked;
+
+  Inc(maxId);
+  tmpGate := TGate.Create('AND', ['A', 'B'], ['OUT'], RGB(40, 200, 80), maxId, onLibGateClicked);
+  tmpGate.makePanel(pnlLogicLib, 50, 0, True);
+  gateLib.Add(maxId, tmpGate);
+
+  Inc(maxId);
+  tmpGate := TGate.Create('OR', ['A', 'B'], ['OUT'], RGB(230, 120, 50), maxId, onLibGateClicked);
+  tmpGate.makePanel(pnlLogicLib, 250, 0, True);
+  gateLib.Add(maxId, tmpGate);
+end;
+
+procedure TfrmGame.FormResize(Sender: TObject);
+begin
+  pnlControls.Height := ClientHeight div 15;
+  for var i := 0 To pnlControls.ControlCount - 1 do
+  begin
+    pnlControls.Controls[i].Height := pnlControls.Height;
+    pnlControls.Controls[i].Width := pnlControls.Height;
+  end;
+
+  imgExitButton.Left := ClientWidth - imgExitButton.Width;
+  imgLevelsButton.Left := ClientWidth - imgLevelsButton.Width * 2 - 20;
+  imgSwitchScreen.Left := ClientWidth - imgSwitchScreen.Width * 3 - 40;
+end;
+
+procedure TfrmGame.FormShow(Sender: TObject);
+begin
+  with Screen.MonitorFromWindow(Self.Handle).WorkAreaRect do
+    Self.SetBounds(Left, Top, Right - Left, Bottom - Top);
+end;
+
+procedure TfrmGame.imgExitButtonClick(Sender: TObject);
+begin
+  Application.MainForm.Show;
+  Hide;
+end;
+
+procedure TfrmGame.imgSwitchScreenClick(Sender: TObject);
+begin
+  pnlPuzzle.Visible := not pnlPuzzle.Visible;
+  pnlLogic.Visible := not pnlLogic.Visible;
+  if pnlLogic.Visible then
+    imgSwitchScreen.Picture.LoadFromFile('../../images/robotIcon.png')
+  else
+    imgSwitchScreen.Picture.LoadFromFile('../../images/codeIcon.png')
+end;
+
+end.

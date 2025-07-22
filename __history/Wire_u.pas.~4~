@@ -1,0 +1,105 @@
+unit Wire_u;
+
+interface
+
+uses Vcl.Graphics, Math, Generics.Collections;
+
+type
+  TConnector = record
+    id, gateId, cableId, x, y : Integer;
+    isInput : Boolean;
+    constructor Create(id, gateId, cableId, x, y : Integer; isInput : Boolean);
+end;
+
+type
+  TSplit = record
+    id, inCableId, x, y : Integer;
+    outCableId : TList<Integer>;
+    constructor Create(id, inCableId : Integer; outCableId : TList<Integer>; x, y : Integer);
+end;
+
+type
+
+  TCable = record
+    id, startId, endId : Integer;
+    isStartConnector, isEndConnector : Boolean; // otherwise its a split
+    parentCable : TCable;
+    cables : TList<TLine>;
+
+    constructor Create(id, x, y, len, dir : Integer);
+    procedure addCable(len, dir : Integer);
+
+end;
+
+type
+  TLine = record
+    x1, x2, y1, y2 : Integer;
+    color : TColor;
+    constructor Create(x1, y1, x2, y2 : Integer; color : TColor);
+end;
+
+
+
+
+
+type
+  TWire = record
+    components : TList<String>;
+    cables : TList<TCable>;
+    connections : TList<TConnector>;
+    splits : TList<TSplit>;
+    //constructor Create(
+end;
+
+implementation
+
+constructor TConnector.Create(id, gateId, cableId, x, y : Integer; isInput : Boolean);
+begin
+  Self.id := id;
+  Self.gateId := gateId;
+  self.cableId := cableId;
+  Self.x := x;
+  Self.y := y;
+  Self.isInput := isInput;
+end;
+
+constructor TSplit.Create(id, inCableId : Integer; outCableId : TList<Integer>; x, y : Integer);
+begin
+  Self.id := id;
+  Self.inCableId := inCableId;
+  Self.outCableId := outCableId;
+  Self.x := x;
+  Self.y := y;
+end;
+
+constructor TLine.Create(x1, y1, x2, y2 : Integer; color : TColor);
+begin
+  Self.x1 := x1;
+  Self.x2 := x2;
+  Self.y1 := y1;
+  Self.y2 := y2;
+  Self.color := color;
+end;
+
+constructor TCable.Create(id, x, y, len, dir : Integer);
+begin
+  Self.id := id;
+  cables.Add(TLine.Create(x, y, IfThen(dir = 0, x, IfThen(dir = 1, x + dir, IfThen(dir = 2, x, x - dir))), IfThen(dir = 0, y - dir, IfThen(dir = 1, y, IfThen(dir = 2, y + dir, y))), clWhite));
+end;
+
+procedure TCable.addCable(len, dir : Integer);
+var
+  x, y : Integer;
+  col : TColor;
+begin
+  x := cables.Last.x2;
+  y := cables.Last.y2;
+  col := cables.Last.color;
+  cables.Add(TLine.Create(x, y, IfThen(dir = 0, x, IfThen(dir = 1, x + dir, IfThen(dir = 2, x, x - dir))), IfThen(dir = 0, y - dir, IfThen(dir = 1, y, IfThen(dir = 2, y + dir, y))), col));
+end;
+
+
+
+
+
+end.

@@ -1,0 +1,15 @@
+program PAT_p;
+
+uses
+  Vcl.Forms,
+  PAT_u in 'PAT_u.pas' {frmCar},
+  Player_u in 'Player_u.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmCar, frmCar);
+  Application.Run;
+end.

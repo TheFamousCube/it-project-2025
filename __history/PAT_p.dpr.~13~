@@ -1,0 +1,27 @@
+program PAT_p;
+
+
+
+
+
+
+
+uses
+  Vcl.Forms,
+  logicEditor in 'logicEditor.pas' {frmGame},
+  mainScreen_u in 'mainScreen_u.pas' {frmStart},
+  Vcl.Themes,
+  Vcl.Styles,
+  Gate_u in 'Gate_u.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  TStyleManager.TrySetStyle('Charcoal Dark Slate');
+  Application.Title := 'Learn To Logic';
+  Application.CreateForm(TfrmStart, frmStart);
+  Application.CreateForm(TfrmGame, frmGame);
+  Application.Run;
+end.

@@ -1,0 +1,141 @@
+unit Gate_u;
+
+interface
+
+uses Graphics, StdCtrls, ExtCtrls, Vcl.Controls, System.Classes, Generics.Collections, Math;
+
+type
+  TGate = record
+  name : String;
+  inputCount, outputCount, id : Integer;
+  inputs, outputs : TArray<String>;
+  color : TColor;
+  inputCircles, outputCircles : TList<TShape>;
+  pnlGate : TPanel;
+  onGateClicked : TNotifyEvent;
+  constructor Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked : TNotifyEvent);
+  function makePanel(parent : TPanel; left, top : Integer; autoHeight : Boolean) : TPanel;
+  procedure OnShapeClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+  procedure OnOnClickTriggered(Sender : TObject);
+end;
+
+implementation
+
+var
+  dicWidths : TDictionary<String, Integer>;
+
+constructor TGate.Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked : TNotifyEvent);
+begin
+  Self.name := name;
+  Self.inputCount := Length(inputs);
+  Self.outputCount := Length(outputs);
+  Self.inputs := inputs;
+  Self.outputs := outputs;
+  Self.color := color;
+  self.onGateClicked := onGateClicked;
+  inputCircles := TList<TShape>.Create();
+  outputCircles := TList<TShape>.Create();
+end;
+
+function TGate.makePanel(parent : TPanel; left, top : Integer; autoHeight : Boolean) : TPanel;
+var
+  shpMain, tmpCirc : TShape;
+  lblName, tmpLabel : TLabel;
+  i, textWidth : Integer;
+  usableHeight : Real;
+begin
+  tmpLabel := TLabel.Create(nil);
+  tmpLabel.Caption := name;
+  tmpLabel.Font.Size := 45;
+  tmpLabel.Font.Name := 'ADLaM Display';
+  tmpLabel.Font.Style := [fsBold];
+  tmpLabel.AutoSize := True;
+  textWidth := tmpLabel.Width;
+  tmpLabel.Destroy;
+
+  pnlGate := TPanel.Create(parent);
+  pnlGate.Parent := parent;
+  pnlGate.Width := 60 + textWidth;
+  pnlGate.Height := Max(70, 13 * (Max(inputCount, outputCount) * 2 + 1));
+  pnlGate.Left := left;
+  pnlGate.Top := IfThen(autoHeight, (parent.Height div 2) - (pnlGate.Height div 2), top);
+  pnlGate.Tag := id;
+  pnlGate.BevelOuter := bvNone;
+  pnlGate.Name := name;
+  pnlGate.OnClick := OnOnClickTriggered;
+
+  shpMain := TShape.Create(pnlGate);
+  shpMain.Parent := pnlGate;
+  shpMain.Left := 10;
+  shpMain.Top := 0;
+  shpMain.Width := pnlGate.Width - 20;
+  shpMain.Height := pnlGate.Height;
+  shpMain.Brush.Color := color;
+  shpMain.OnMouseUp := onShapeClicked;
+
+  lblName := TLabel.Create(pnlGate);
+  lblName.Parent := pnlGate;
+  lblName.Left := 10;
+  lblName.Top := 0;
+  lblName.Width := pnlGate.Width - 20;
+  lblName.Height := pnlGate.Height;
+  lblName.AutoSize := False;
+  lblName.Caption := name;
+  //lblName.Font.Size := Min(45, Round(2 / Length(name) * 35));
+  lblName.Font.Size := 45;
+  lblName.Font.Name := 'ADLaM Display';
+  lblName.Font.Style := [fsBold];
+  lblName.Alignment := taCenter;
+  lblName.Layout := tlCenter;
+  lblName.OnClick := OnOnClickTriggered;
+
+  for i := 1 to inputCount do
+  begin
+    tmpCirc := TShape.Create(pnlGate);
+    tmpCirc.Parent := pnlGate;
+    tmpCirc.Shape := stCircle;
+    tmpCirc.Height := 20;
+    tmpCirc.Width := 20;
+    tmpCirc.Left := 0;
+    usableHeight := pnlGate.Height - tmpCirc.Height * inputCount;
+    tmpCirc.Top := Round(usableHeight / (inputCount + 1) * i + tmpCirc.Height * (i - 1));
+    //tmpCirc.Top := Round(((pnlGate.Height / (2 * inputCount + 1)) * (i * 2 - 1)));// + (tmpCirc.Width / 2));
+    tmpCirc.Brush.Color := clBlack;
+    tmpCirc.ShowHint := True;
+    tmpCirc.Hint := inputs[i - 1];
+    tmpCirc.OnMouseUp := onShapeClicked;
+    inputCircles.Add(tmpCirc);
+  end;
+
+  for i := 1 to outputCount do
+  begin
+    tmpCirc := TShape.Create(pnlGate);
+    tmpCirc.Parent := pnlGate;
+    tmpCirc.Shape := stCircle;
+    tmpCirc.Height := 20;
+    tmpCirc.Width := 20;
+    tmpCirc.Left := pnlGate.Width - tmpCirc.Width;
+    usableHeight := pnlGate.Height - tmpCirc.Height * outputCount;
+    tmpCirc.Top := Round(usableHeight / (outputCount + 1) * i + tmpCirc.Height * (i - 1));
+    tmpCirc.Brush.Color := clBlack;
+    tmpCirc.ShowHint := True;
+    tmpCirc.Hint := outputs[i - 1];
+    tmpCirc.OnMouseUp := onShapeClicked;
+    inputCircles.Add(tmpCirc);
+  end;
+end;
+
+procedure TGate.OnOnClickTriggered(Sender : TObject);
+begin
+  WriteLn(Assigned(onGateClicked));
+  if Assigned(onGateClicked) then
+    onGateClicked(pnlGate);
+end;
+
+procedure TGate.OnShapeClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Assigned(onGateClicked) then
+    onGateClicked(pnlGate);
+end;
+
+end.

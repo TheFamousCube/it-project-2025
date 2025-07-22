@@ -1,0 +1,61 @@
+unit PAT_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Math;
+
+type
+  TfrmCar = class(TForm)
+    shpCar: TShape;
+    tmrGame: TTimer;
+    procedure tmrGameTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCar: TfrmCar;
+  velocityX, rotation : Integer;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCar.FormCreate(Sender: TObject);
+begin
+  AllocConsole;
+  velocityX := 0;
+  rotation := 0;
+end;
+
+procedure TfrmCar.tmrGameTimer(Sender: TObject);
+var
+up, sideways : Double;
+begin
+  if GetKeyState(Ord('W')) < 0 then
+  begin
+    //velocityX := 3
+    if velocityX < 2 then velocityX := velocityX + 1;
+  end
+  else
+    if velocityX > 0 then velocityX := velocityX - 1;
+
+  if GetKeyState(Ord('A')) < 0 then
+    rotation := rotation - 1
+  else if GetKeyState(Ord('D')) < 0 then
+    rotation := rotation + 1;
+
+  WriteLn(rotation);
+
+  SinCos(rotation / 20, up, sideways);
+  shpCar.Top := shpCar.Top - Round(velocityX * up);
+  shpCar.Left := shpCar.Left - Round(2 * sideways * velocityX);
+
+end;
+
+end.
