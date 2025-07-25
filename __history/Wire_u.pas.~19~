@@ -125,8 +125,8 @@ begin
 
       WriteLn('d4');
 
-      tmpShape.Left := x1 + WIRE_THICKNESS div 2 - IfThen(x1 < x2, -WIRE_THICKNESS, x1 - x2 - WIRE_THICKNESS);
-      tmpShape.Top := y1 + WIRE_THICKNESS div 2 - IfThen(y1 < y2, -WIRE_THICKNESS, y1 - y2 - WIRE_THICKNESS);
+      tmpShape.Left := x1 + WIRE_THICKNESS div 2 - IfThen(x1 < x2, 0, x1 - x2 - WIRE_THICKNESS);
+      tmpShape.Top := y1 + WIRE_THICKNESS div 2 - IfThen(y1 < y2, 0, y1 - y2 - WIRE_THICKNESS);
 
       if x1 = x2 then
       begin
@@ -135,13 +135,12 @@ begin
       end
       else if y1 = y2 then
       begin
-        tmpShape.Height := WIRE_THICKNESS;
-        tmpShape.Width := Max(x1, x2) - Min(x1, x2) + WIRE_THICKNESS;
+        tmpShape.Height := WIRE_THICKNESS + WIRE_THICKNESS;
+        tmpShape.Width := Max(x1, x2) - Min(x1, x2);
       end;
       WriteLn('d5');
       tmpShape.Shape := stRectangle;
       tmpShape.Brush.Color := clBlack;
-      tmpShape.ShowHint := True;
       tmpShape.Hint := IntToStr(i);
       WriteLn('d6');
     end;

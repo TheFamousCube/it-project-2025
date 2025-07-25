@@ -44,7 +44,7 @@ type
 end;
 
 const
-  WIRE_THICKNESS = 8;
+  WIRE_THICKNESS = 4;
 
 implementation
 
@@ -102,8 +102,6 @@ var
   x1, y1, x2, y2 : Integer;
 begin
   WriteLn('d1');
-  rects := TList<TShape>.Create();
-  splits := TList<TShape>.Create();
   for tmpCable in cables do
   begin
     WriteLn('d2');
@@ -125,40 +123,33 @@ begin
 
       WriteLn('d4');
 
-      tmpShape.Left := x1 + WIRE_THICKNESS div 2 - IfThen(x1 < x2, -WIRE_THICKNESS, x1 - x2 - WIRE_THICKNESS);
-      tmpShape.Top := y1 + WIRE_THICKNESS div 2 - IfThen(y1 < y2, -WIRE_THICKNESS, y1 - y2 - WIRE_THICKNESS);
+      tmpShape.Left := x1 + WIRE_THICKNESS div 2;
+      tmpShape.Top := y1 + WIRE_THICKNESS div 2;
 
       if x1 = x2 then
       begin
-        tmpShape.Height := Max(y1, y2) - Min(y1, y2) + WIRE_THICKNESS;
+        tmpShape.Height := Max(y1, y2) - Min(y1, y2);
         tmpShape.Width := WIRE_THICKNESS;
       end
       else if y1 = y2 then
       begin
         tmpShape.Height := WIRE_THICKNESS;
-        tmpShape.Width := Max(x1, x2) - Min(x1, x2) + WIRE_THICKNESS;
+        tmpShape.Width := Max(x1, x2) - Min(x1, x2);
       end;
       WriteLn('d5');
       tmpShape.Shape := stRectangle;
       tmpShape.Brush.Color := clBlack;
-      tmpShape.ShowHint := True;
-      tmpShape.Hint := IntToStr(i);
       WriteLn('d6');
     end;
-    rects.Add(tmpShape);
   end;
-   WriteLn('d7');
+
   for tmpShape in controls do
   begin
     tmpShape.Destroy;
   end;
 
-  WriteLn('d8');
-
   controls.AddRange(rects);
   controls.AddRange(splits);
-
-  WriteLn('d9');
 end;
 
 end.

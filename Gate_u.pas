@@ -2,7 +2,7 @@ unit Gate_u;
 
 interface
 
-uses Graphics, StdCtrls, ExtCtrls, Vcl.Controls, System.Classes, Generics.Collections, Math;
+uses Graphics, StdCtrls, ExtCtrls, Vcl.Controls, System.Classes, Generics.Collections, Math, Winapi.Windows;
 
 type
   TGate = class
@@ -12,8 +12,10 @@ type
   color : TColor;
   inputCircles, outputCircles : TList<TShape>;
   pnlGate : TPanel;
-  onGateClicked : TNotifyEvent;
-  constructor Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked : TNotifyEvent);
+  shpGate : TShape;
+  onGateClicked, onOutputClicked : TNotifyEvent;
+  mostRecentClick : TPoint;
+  constructor Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked, onOutputClicked : TNotifyEvent);
   function makePanel(parent : TPanel; left, top : Integer; autoHeight : Boolean) : TPanel;
   procedure OnShapeClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   procedure OnOnClickTriggered(Sender : TObject);
@@ -24,7 +26,7 @@ implementation
 var
   dicWidths : TDictionary<String, Integer>;
 
-constructor TGate.Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked : TNotifyEvent);
+constructor TGate.Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked, onOutputClicked : TNotifyEvent);
 begin
   Self.name := name;
   Self.inputCount := Length(inputs);
@@ -33,9 +35,11 @@ begin
   Self.outputs := outputs;
   Self.color := color;
   self.onGateClicked := onGateClicked;
+  self.onOutputClicked := onOutputClicked;
   self.id := id;
-  inputCircles := TList<TShape>.Create();
-  outputCircles := TList<TShape>.Create();
+  self.inputCircles := TList<TShape>.Create();
+  self.outputCircles := TList<TShape>.Create();
+  self.mostRecentClick := TPoint.Create(0, 0);
 end;
 
 function TGate.makePanel(parent : TPanel; left, top : Integer; autoHeight : Boolean) : TPanel;
@@ -72,6 +76,7 @@ begin
   shpMain.Height := pnlGate.Height;
   shpMain.Brush.Color := color;
   shpMain.OnMouseUp := onShapeClicked;
+  shpGate := shpMain;
 
   lblName := TLabel.Create(pnlGate);
   lblName.Parent := pnlGate;
@@ -133,8 +138,14 @@ end;
 
 procedure TGate.OnShapeClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  mostRecentClick.SetLocation(X, Y);
   if Assigned(onGateClicked) then
     onGateClicked(Self);
+  if Assigned(onOutputClicked) and (TShape(Sender).Shape = stCircle) then
+  begin
+    onOutputClicked(Self);
+    Self.shpGate.Tag := TShape(Sender).Tag;
+  end;
 end;
 
 end.

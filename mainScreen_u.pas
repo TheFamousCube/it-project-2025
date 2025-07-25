@@ -34,6 +34,7 @@ implementation
 procedure TfrmStart.FormCreate(Sender: TObject);
 begin
   AllocConsole;
+  frmGame := TfrmGame.Create(nil);
   //LoadResourceFont('Adlam.ttf');
   //AddFontResource(PChar('Adlam.ttf'));
 end;
@@ -57,7 +58,7 @@ end;
 
 procedure TfrmStart.imgPlayClick(Sender: TObject);
 begin
-  //frmGame := TfrmGame.Create(nil);
+  //
   frmGame.Show;
   frmStart.Hide;
 end;

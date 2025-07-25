@@ -2,7 +2,7 @@ object frmGame: TfrmGame
   Left = 0
   Top = 0
   Caption = 'Learn To Logic 2'
-  ClientHeight = 900
+  ClientHeight = 881
   ClientWidth = 1400
   Color = clBtnFace
   DoubleBuffered = True
@@ -20,12 +20,12 @@ object frmGame: TfrmGame
     Left = 0
     Top = 65
     Width = 1400
-    Height = 835
+    Height = 816
     Align = alClient
     TabOrder = 0
     object pnlLogicLib: TPanel
       Left = 1
-      Top = 634
+      Top = 615
       Width = 1398
       Height = 200
       Align = alBottom
@@ -45,7 +45,7 @@ object frmGame: TfrmGame
     Left = 0
     Top = 65
     Width = 1400
-    Height = 835
+    Height = 816
     Align = alClient
     TabOrder = 1
     Visible = False
@@ -69,17 +69,19 @@ object frmGame: TfrmGame
       object lblAnd: TLabel
         Left = 0
         Top = 0
-        Width = 80
-        Height = 60
+        Width = 63
+        Height = 35
         Alignment = taCenter
-        AutoSize = False
         Caption = 'AND'
+        Color = clAqua
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
+        Font.Color = clNavy
         Font.Height = -27
         Font.Name = 'ADLaM Display'
         Font.Style = [fsBold]
+        ParentColor = False
         ParentFont = False
+        Transparent = True
         Layout = tlCenter
       end
       object Shape1: TShape
@@ -92,6 +94,18 @@ object frmGame: TfrmGame
         Shape = stCircle
         ShowHint = False
       end
+    end
+    object Panel2: TPanel
+      Left = 608
+      Top = 361
+      Width = 185
+      Height = 41
+      BevelOuter = bvNone
+      Caption = 'Panel2'
+      Color = clNone
+      Ctl3D = True
+      ParentCtl3D = False
+      TabOrder = 1
     end
   end
   object pnlControls: TPanel

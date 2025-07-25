@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Math, Vcl.Imaging.pngimage, Vcl.StdCtrls, Gate_u, Generics.Collections;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Math, Vcl.Imaging.pngimage,
+   Vcl.StdCtrls, Gate_u, Generics.Collections, Wire_u;
 
 type
   TfrmGame = class(TForm)
@@ -28,6 +29,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure onLibGateClicked(Sender: TObject);
+    procedure onLogicGateClicked(Sender: TObject);
     procedure onLogicPanelClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
@@ -38,8 +40,10 @@ var
   frmGame: TfrmGame;
   gates : TDictionary<Integer, TGate>;
   gateLib : TDictionary<Integer, TGate>;
-  isPlacingGate : Boolean;
+  isPlacingGate, isCreatingWire, isCreatingCable : Boolean;
   curPlacingGate, maxId : Integer;
+  curWireBeingCreated : TWire;
+  curCableBeingCreated : TCable;
 
 implementation
 
@@ -51,21 +55,78 @@ begin
   if isPlacingGate then
   begin
     curPlacingGate := TGate(Sender).id;
+  end;
+end;
+
+procedure TfrmGame.onLogicGateClicked(Sender: TObject);
+var
+  inputClicked : TShape;
+begin
+  WriteLn('m1');
+  if isCreatingCable then
+  begin
+    WriteLn('m2');
+    isCreatingWire := False;
+    isCreatingCable := False;
+
+    curCableBeingCreated.endId := TGate(Sender).shpGate.Tag;
+    curWireBeingCreated.cables.Add(curCableBeingCreated);
+    WriteLn('m3');
+    curWireBeingCreated.Draw(pnlLogic);
+    WriteLn('made wire');
   end
+  else
+  begin
+    if isCreatingWire or isPlacingGate then Exit;
+
+    var wire := TWire.Create(0);
+    wire.cables := TList<TCable>.Create();
+
+    inputClicked := TGate(Sender).inputCircles[TGate(Sender).shpGate.Tag];
+    wire.inputConnectorId := TGate(Sender).shpGate.Tag;
+
+    wire.initX := TGate(sender).pnlGate.Left + (inputClicked.Width div 2);
+    wire.initY := TGate(sender).pnlGate.Top + (inputClicked.Width div 2);
+
+    isCreatingWire := True;
+    isCreatingCable := True;
+
+    curWireBeingCreated := wire;
+
+    curCableBeingCreated := TCable.Create(0, nil, TList<PCable>.Create(), wire.inputConnectorId, true, -1, false, TList<TPoint>.Create());
+    curCableBeingCreated.path := TList<TPoint>.Create();
+  end;
 end;
 
 procedure TfrmGame.onLogicPanelClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   tmpGate : TGate;
+  startX, startY : Integer;
 begin
   if isPlacingGate then
   begin
     Inc(maxId);
-    WriteLn(curPlacingGate);
-    tmpGate := TGate.Create(gateLib[curPlacingGate].name, gateLib[curPlacingGate].inputs, gateLib[curPlacingGate].outputs, gateLib[curPlacingGate].color, maxId, nil);
+    tmpGate := TGate.Create(gateLib[curPlacingGate].name, gateLib[curPlacingGate].inputs, gateLib[curPlacingGate].outputs, gateLib[curPlacingGate].color, maxId, nil, onLogicGateClicked);
     tmpGate.makePanel(pnlLogic, X, Y, False);
     gates.Add(maxId, tmpGate);
     tmpGate.Free;
+    curPlacingGate := -1;
+    isPlacingGate := False;
+  end
+  else if isCreatingWire then
+  begin
+    if curCableBeingCreated.Path.Count = 0 then
+    begin
+      startX := curWireBeingCreated.initX;
+      startY := curWireBeingCreated.initY;
+    end
+    else
+    begin
+      startX := curCableBeingCreated.path.Last.X;
+      startY := curCableBeingCreated.path.Last.Y;
+    end;
+
+    curCableBeingCreated.path.Add(TPoint.Create(X, Y));
   end;
 end;
 
@@ -95,19 +156,18 @@ begin
   maxId := 0;
   Screen.HintFont.Name := 'ADLaM Display';
   Screen.HintFont.Size := 20;
+  isPlacingGate := False;
+  isCreatingWire := False;
 
   pnlLogic.onMouseUp := onLogicPanelClicked;
 
   Inc(maxId);
-  tmpGate := TGate.Create('AND', ['A', 'B'], ['OUT'], RGB(40, 200, 80), maxId, onLibGateClicked);
+  tmpGate := TGate.Create('AND', ['A', 'B'], ['OUT'], RGB(40, 200, 80), maxId, onLibGateClicked, nil);
   tmpGate.makePanel(pnlLogicLib, 50, 0, True);
   gateLib.Add(maxId, tmpGate);
 
-  tmpGate.Free;
-  tmpGate.Destroy;
-
   Inc(maxId);
-  tmpGate := TGate.Create('OR', ['A', 'B'], ['OUT'], RGB(230, 120, 50), maxId, onLibGateClicked);
+  tmpGate := TGate.Create('OR', ['A', 'B'], ['OUT'], RGB(230, 120, 50), maxId, onLibGateClicked, nil);
   tmpGate.makePanel(pnlLogicLib, 250, 0, True);
   gateLib.Add(maxId, tmpGate);
 end;

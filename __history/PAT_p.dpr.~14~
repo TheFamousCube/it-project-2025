@@ -23,5 +23,6 @@ begin
   TStyleManager.TrySetStyle('Charcoal Dark Slate');
   Application.Title := 'Learn To Logic';
   Application.CreateForm(TfrmStart, frmStart);
+  Application.CreateForm(TfrmGame, frmGame);
   Application.Run;
 end.

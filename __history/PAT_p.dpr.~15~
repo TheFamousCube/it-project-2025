@@ -22,6 +22,5 @@ begin
   Application.MainFormOnTaskbar := True;
   TStyleManager.TrySetStyle('Charcoal Dark Slate');
   Application.Title := 'Learn To Logic';
-  Application.CreateForm(TfrmStart, frmStart);
   Application.Run;
 end.

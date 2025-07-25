@@ -5,17 +5,17 @@ interface
 uses Graphics, StdCtrls, ExtCtrls, Vcl.Controls, System.Classes, Generics.Collections, Math;
 
 type
-  TGate = record
+  TGate = class
   name : String;
   inputCount, outputCount, id : Integer;
   inputs, outputs : TArray<String>;
   color : TColor;
   inputCircles, outputCircles : TList<TShape>;
   pnlGate : TPanel;
-  onGateClicked : TNotifyEvent;
-  constructor Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked : TNotifyEvent);
+  shpGate : TShape;
+  onGateClicked, onOutputClicked : TNotifyEvent;
+  constructor Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked, onOutputClicked : TNotifyEvent);
   function makePanel(parent : TPanel; left, top : Integer; autoHeight : Boolean) : TPanel;
-  function getStringWidth(sIn : String) : Integer;
   procedure OnShapeClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   procedure OnOnClickTriggered(Sender : TObject);
 end;
@@ -25,7 +25,7 @@ implementation
 var
   dicWidths : TDictionary<String, Integer>;
 
-constructor TGate.Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked : TNotifyEvent);
+constructor TGate.Create(name : String; inputs, outputs : TArray<String>; color : TColor; id : Integer; onGateClicked, onOutputClicked : TNotifyEvent);
 begin
   Self.name := name;
   Self.inputCount := Length(inputs);
@@ -34,8 +34,10 @@ begin
   Self.outputs := outputs;
   Self.color := color;
   self.onGateClicked := onGateClicked;
-  inputCircles := TList<TShape>.Create();
-  outputCircles := TList<TShape>.Create();
+  self.onOutputClicked := onOutputClicked;
+  self.id := id;
+  self.inputCircles := TList<TShape>.Create();
+  self.outputCircles := TList<TShape>.Create();
 end;
 
 function TGate.makePanel(parent : TPanel; left, top : Integer; autoHeight : Boolean) : TPanel;
@@ -56,16 +58,12 @@ begin
 
   pnlGate := TPanel.Create(parent);
   pnlGate.Parent := parent;
-  //pnlGate.Width := 20 + 100 + Length(name) * 50;
-  //WriteLn(getStringWidth(name));
-  //pnlGate.Width := 40 + Round(getStringWidth(name) * 1.5);
-  pnlGate.Width := 40 + textWidth;
+  pnlGate.Width := 60 + textWidth;
   pnlGate.Height := Max(70, 13 * (Max(inputCount, outputCount) * 2 + 1));
   pnlGate.Left := left;
   pnlGate.Top := IfThen(autoHeight, (parent.Height div 2) - (pnlGate.Height div 2), top);
   pnlGate.Tag := id;
   pnlGate.BevelOuter := bvNone;
-  pnlGate.Name := name;
   pnlGate.OnClick := OnOnClickTriggered;
 
   shpMain := TShape.Create(pnlGate);
@@ -76,6 +74,7 @@ begin
   shpMain.Height := pnlGate.Height;
   shpMain.Brush.Color := color;
   shpMain.OnMouseUp := onShapeClicked;
+  shpGate := shpMain;
 
   lblName := TLabel.Create(pnlGate);
   lblName.Parent := pnlGate;
@@ -129,103 +128,21 @@ begin
   end;
 end;
 
-function TGate.getStringWidth(sIn : String) : Integer;
-var
-  iTotalWidth, i : Integer;
-begin
-  iTotalWidth := 0;
-  if not Assigned(dicWidths) then
-  begin
-    dicWidths := TDictionary<String, Integer>.Create;
-    dicWidths.Add('A', 31);
-    dicWidths.Add('B', 29);
-    dicWidths.Add('C', 29);
-    dicWidths.Add('D', 33);
-    dicWidths.Add('E', 25);
-    dicWidths.Add('F', 24);
-    dicWidths.Add('G', 31);
-    dicWidths.Add('H', 34);
-    dicWidths.Add('I', 14);
-    dicWidths.Add('J', 16);
-    dicWidths.Add('K', 30);
-    dicWidths.Add('L', 23);
-    dicWidths.Add('M', 42);
-    dicWidths.Add('N', 35);
-    dicWidths.Add('O', 34);
-    dicWidths.Add('P', 28);
-    dicWidths.Add('Q', 34);
-    dicWidths.Add('R', 29);
-    dicWidths.Add('S', 26);
-    dicWidths.Add('T', 27);
-    dicWidths.Add('U', 33);
-    dicWidths.Add('V', 31);
-    dicWidths.Add('W', 46);
-    dicWidths.Add('X', 30);
-    dicWidths.Add('Y', 28);
-    dicWidths.Add('Z', 28);
-    dicWidths.Add('a', 25);
-    dicWidths.Add('b', 28);
-    dicWidths.Add('c', 22);
-    dicWidths.Add('d', 28);
-    dicWidths.Add('e', 25);
-    dicWidths.Add('f', 17);
-    dicWidths.Add('g', 28);
-    dicWidths.Add('h', 28);
-    dicWidths.Add('i', 13);
-    dicWidths.Add('j', 13);
-    dicWidths.Add('k', 25);
-    dicWidths.Add('l', 13);
-    dicWidths.Add('m', 42);
-    dicWidths.Add('n', 28);
-    dicWidths.Add('o', 28);
-    dicWidths.Add('p', 28);
-    dicWidths.Add('q', 28);
-    dicWidths.Add('r', 18);
-    dicWidths.Add('s', 21);
-    dicWidths.Add('t', 18);
-    dicWidths.Add('u', 28);
-    dicWidths.Add('v', 25);
-    dicWidths.Add('w', 38);
-    dicWidths.Add('x', 25);
-    dicWidths.Add('y', 25);
-    dicWidths.Add('z', 22);
-    dicWidths.Add('0', 28);
-    dicWidths.Add('1', 20);
-    dicWidths.Add('2', 26);
-    dicWidths.Add('3', 25);
-    dicWidths.Add('4', 28);
-    dicWidths.Add('5', 25);
-    dicWidths.Add('6', 27);
-    dicWidths.Add('7', 25);
-    dicWidths.Add('8', 28);
-    dicWidths.Add('9', 27);
-    dicWidths.Add(' ', 12);
-    dicWidths.Add('.', 13);
-    dicWidths.Add(',', 12);
-    dicWidths.Add('/', 20);
-    dicWidths.Add('-', 18);
-    dicWidths.Add('_', 19);
-  end;
-
-  for i := 1 to Length(sIn) do
-  begin
-    Inc(iTotalWidth, dicWidths[sIn[i]]);
-  end;
-
-  Result := iTotalWidth;
-end;
-
 procedure TGate.OnOnClickTriggered(Sender : TObject);
 begin
-  WriteLn(Assigned(onGateClicked));
   if Assigned(onGateClicked) then
-    onGateClicked(pnlGate);
+    onGateClicked(Self);
 end;
 
 procedure TGate.OnShapeClicked(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if Assigned(onGateClicked) then
-    onGateClicked(pnlGate);
+    onGateClicked(Self);
+  if Assigned(onOutputClicked) and (TShape(Sender).Shape = stCircle) then
+  begin
+    onOutputClicked(Self);
+    Self.shpGate.Tag := TShape(Sender).Tag;
+  end;
 end;
 
 end.
